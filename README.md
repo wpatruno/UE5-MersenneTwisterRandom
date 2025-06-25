@@ -433,18 +433,6 @@ RandomEngine LevelSeeded(GetWorld()->GetName().GetHash());
 - Pre-generate random values for real-time critical code
 - Consider using static methods for one-off generations
 
-## 🤝 Contributing
-
-Contributions are welcome! Please ensure:
-- Code follows UE5 coding standards
-- New functions include proper documentation
-- Mathematical algorithms are well-commented
-- Performance implications are considered
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## 🔗 Links
 
 - [Mersenne Twister Wikipedia](https://en.wikipedia.org/wiki/Mersenne_Twister)
@@ -460,3 +448,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Array manipulation functions
 - Curve-based random generation
 - Comprehensive documentation and examples
+
+---
+
+## 🤖 AI Development Disclaimer
+
+This project was developed with AI assistance (Claude Sonnet 4). The code implementation, documentation, comments, and README were generated and refined through AI collaboration.

@@ -244,9 +244,10 @@ float RandomEngine::RandGaussian(const float Mean, const float StdDev)
  * @param Max - Maximum value (inclusive)
  * @param Bias - Value to bias toward (center of bell curve)
  * @param Spread - How spread out the values are (lower = more concentrated)
+ * @param Attempts - How many attempts to make before clamping
  * @return Random float between Min and Max with Gaussian distribution
  */
-float RandomEngine::RandGaussianClamped(const float Min, const float Max, const float Bias, const float Spread)
+float RandomEngine::RandGaussianClamped(const float Min, const float Max, const float Bias, const float Spread, const int32 Attempts)
 {
 	// Clamp bias to be within the range
 	const float ClampedBias = FMath::Clamp(Bias, Min, Max);
@@ -257,25 +258,40 @@ float RandomEngine::RandGaussianClamped(const float Min, const float Max, const 
 	const float StdDev = (Range * Spread) / 6.0f; // 6 sigma covers 99.7% of normal distribution
 
 	// Generate Gaussian value and clamp to range
-	float Value;
-	int32 Attempts = 0;
-	constexpr int32 MaxAttempts = 3; // Prevent infinite loops
+	float Value = 0;
+	const int32 MaxAttempts = FMath::Max(Attempts, 1);
 
-	do
+	for (int i = 0; i < MaxAttempts; ++i)
 	{
-		if (Attempts == MaxAttempts)
+		Value = RandGaussian(ClampedBias, StdDev);
+		if (Value >= Min && Value <= Max)
 		{
-			Value = RandFloat(Min, Max);
+			return Value;
 		}
-		else
-		{
-			Value = RandGaussian(ClampedBias, StdDev);
-		}
-		Attempts++;
 	}
-	while ((Value < Min || Value > Max) && Attempts <= MaxAttempts);
 
-	return Value;
+	return FMath::Clamp(Value, Min, Max);
+}
+
+float RandomEngine::RandGaussianTruncated(const float Min, const float Max, const float Bias, const float Spread)
+{
+	// Clamp bias to be within the range
+	const float ClampedBias = FMath::Clamp(Bias, Min, Max);
+
+	// Calculate standard deviation based on range and spread
+	// Spread of 1.0 means about 99.7% of values will be within the range
+	const float Range = Max - Min;
+	const float StdDev = (Range * Spread) / 6.0f; // 6 sigma covers 99.7% of normal distribution
+
+	for (int i = 0; i < 5; ++i)
+	{
+		const float Value = RandGaussian(ClampedBias, StdDev);
+		if (Value >= Min && Value <= Max)
+		{
+			return Value;
+		}
+	}
+	return RandFloat(Min, Max);
 }
 
 /**
@@ -335,7 +351,7 @@ int32 RandomEngine::RandWeighted(const TArray<float>& Weights)
  * @param Sides - Number of sides on each die
  * @return Sum of all dice rolls, or 0 if invalid input
  */
-int32 RandomEngine::RollDice(const int32 NumDice, const int32 Sides)
+int32 RandomEngine::RollDice(const int32 NumDice, const int32 Sides = 6)
 {
 	// Validate input
 	if (NumDice <= 0 || Sides <= 0)
@@ -352,6 +368,45 @@ int32 RandomEngine::RollDice(const int32 NumDice, const int32 Sides)
 
 	return Total;
 }
+
+int32 RandomEngine::RollDiceArray(const TArray<int32>& DiceArray)
+{
+	if (DiceArray.IsEmpty())
+	{
+		return 0;
+	}
+	int32 Total = 0;
+	for (auto Sides : DiceArray)
+	{
+		if (Sides >= 1)
+		{
+			Total += RandInt(1, Sides);
+		}
+	}
+	return Total;
+}
+
+float RandomEngine::RandCurveValue(const FRichCurve& Curve)
+{
+	if (!Curve.IsEmpty())
+	{
+		const float MinTime = Curve.GetFirstKey().Time;
+		const float MaxTime = Curve.GetLastKey().Time;
+
+		return Curve.Eval(RandFloat(MinTime, MaxTime));
+	}
+	return 0;
+}
+
+float RandomEngine::RandCurveRange(const FRichCurve& Curve, const float Min, const float Max)
+{
+	if (!Curve.IsEmpty())
+	{
+		return Curve.Eval(RandFloat(Min, Max));
+	}
+	return 0;
+}
+
 
 /**
  * Generates a new GUID using high-quality random number generation

@@ -102,9 +102,20 @@ public:
 	 * @param Max - Maximum value (inclusive)
 	 * @param Bias - Value to bias toward (center of bell curve)
 	 * @param Spread - How spread out the values are (lower = more concentrated)
+	 * @param Attempts - How many attempts to make before clamping
 	 * @return Random float between Min and Max with Gaussian distribution
 	 */
-	float RandGaussianClamped(const float Min, const float Max, const float Bias = 0.0f, const float Spread = 1.0f);
+	float RandGaussianClamped(const float Min, const float Max, const float Bias = 0.0f, const float Spread = 1.0f, const int32 Attempts = 5);
+
+	/**
+	 * Generates a random float using Gaussian distribution clamped to a range
+	 * @param Min - Minimum value (inclusive)
+	 * @param Max - Maximum value (inclusive)
+	 * @param Bias - Value to bias toward (center of bell curve)
+	 * @param Spread - How spread out the values are (lower = more concentrated)
+	 * @return Random float between Min and Max with Gaussian distribution
+	 */
+	float RandGaussianTruncated(const float Min, const float Max, const float Bias = 0.0f, const float Spread = 1.0f);
 
 	/**
 	 * Generates a random index based on weighted probabilities
@@ -120,6 +131,30 @@ public:
 	 * @return Sum of all dice rolls, or 0 if invalid input
 	 */
 	int32 RollDice(const int32 NumDice, const int32 Sides);
+
+	/**
+	 * Rolls multiple dice and returns the sum
+	 * @param DiceArray - Number of dice to roll with their number of sides as value
+	 * @param Sides - Number of sides on each die
+	 * @return Sum of all dice rolls, or 0 if invalid input
+	 */
+	int32 RollDiceArray(const TArray<int32>& DiceArray);
+
+	/**
+	 * Generates a random value that is evaluated on the curve
+	 * @param Curve - The rich curve used to evaluate the random number
+	 * @return Value on the curve
+	 */
+	float RandCurveValue(const FRichCurve& Curve);
+
+	/**
+	 * Generates a random value that is evaluated on the curve
+	 * @param Curve - The rich curve used to evaluate the random number
+	 * @param Min - The min possible value to generate
+	 * @param Max - The max possible value to generate
+	 * @return Value on the curve
+	 */
+	float RandCurveRange(const FRichCurve& Curve, float Min, float Max);
 
 	/* STATIC METHODS */
 

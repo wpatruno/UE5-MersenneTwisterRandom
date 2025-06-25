@@ -62,6 +62,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Twister Random|Dice", meta = (DisplayName = "Roll Dice Array"))
 	int32 RollDiceArray(const TArray<int32>& DiceArray);
 
+	UFUNCTION(BlueprintCallable, Category = "Twister Random|Curve", meta = (DisplayName = "Random Curve Value"))
+	float RandCurveValue(const FRuntimeFloatCurve& Curve);
+
+	UFUNCTION(BlueprintCallable, Category = "Twister Random|Curve", meta = (DisplayName = "Random Curve Range"))
+	float RandCurveRange(const FRuntimeFloatCurve& Curve, const float Min, const float Max);
+
 	UFUNCTION(BlueprintCallable, Category = "Twister Random|Static", meta = (DisplayName = "Generate New Seed"))
 	static int32 StaticNewSeed();
 

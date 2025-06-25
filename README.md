@@ -36,8 +36,6 @@ The Mersenne Twister algorithm, while excellent for games and simulations, is **
 - Simulations and modeling
 - Non-security related randomness
 
-For cryptographic applications, use platform-specific secure random generators (e.g., `CryptGenRandom` on Windows, `/dev/urandom` on Unix systems).
-
 ## 📦 Installation
 
 1. Download or clone this repository into your project's `Plugins` folder:

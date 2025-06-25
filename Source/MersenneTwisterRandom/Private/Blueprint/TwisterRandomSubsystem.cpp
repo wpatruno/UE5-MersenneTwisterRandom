@@ -64,6 +64,24 @@ int32 UTwisterRandomSubsystem::RollDiceArray(const TArray<int32>& DiceArray)
 	return Random.RollDiceArray(DiceArray);
 }
 
+float UTwisterRandomSubsystem::RandCurveValue(const FRuntimeFloatCurve& Curve)
+{
+	if (const FRichCurve* RichCurve = Curve.GetRichCurveConst(); RichCurve && RichCurve->Keys.Num() > 0)
+	{
+		return Random.RandCurveValue(*RichCurve);
+	}
+	return 0.0f;
+}
+
+float UTwisterRandomSubsystem::RandCurveRange(const FRuntimeFloatCurve& Curve, const float Min, const float Max)
+{
+	if (const FRichCurve* RichCurve = Curve.GetRichCurveConst(); RichCurve && RichCurve->Keys.Num() > 0)
+	{
+		return Random.RandCurveRange(*RichCurve, Min, Max);
+	}
+	return 0.0f;
+}
+
 int32 UTwisterRandomSubsystem::GetRootSeed() const
 {
 	return Random.GetRootSeed();

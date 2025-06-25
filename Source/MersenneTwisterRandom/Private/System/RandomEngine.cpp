@@ -2,9 +2,8 @@
 
 #include "System/RandomEngine.h"
 
-RandomEngine::RandomEngine()
+RandomEngine::RandomEngine(): RandomEngine(StaticNewSeed())
 {
-	Seed = 0;
 }
 
 /**

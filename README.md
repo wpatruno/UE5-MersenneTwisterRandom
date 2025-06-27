@@ -412,6 +412,29 @@ float VolumeVariation = Engine.RandFloat(0.8f, 1.0f);
 | Memory | Minimal | ~2.5KB state |
 | Thread Safety | Global state | Instance-based |
 
+## 📊 Quality Demonstration
+
+The `Resources` folder contains empirical roll test data demonstrating the superior quality of Mersenne Twister over Unreal Engine's default random number generator.
+
+### Roll Test Results
+
+**Test Parameters:**
+- Sample Size: 10,000 random integers
+- Range: -5,000,000 to 5,000,000
+- Metric: Duplicate values found
+
+**Results:**
+- **`RollTestDefault.json`**: UE Default RNG produced **1,443 duplicates** (14.43% collision rate)
+- **`RollTestMersenne.json`**: Mersenne Twister produced **5 duplicates** (0.05% collision rate)
+
+This represents a **99.65% reduction in collisions**, demonstrating significantly better statistical distribution and randomness quality. The test files contain the complete sample data for verification and analysis.
+
+**Implications:**
+- Better procedural generation (fewer repeated patterns)
+- More reliable statistical simulations
+- Improved randomness for gameplay mechanics
+- Reduced clustering in spatial distributions
+
 ## 🔧 Advanced Configuration
 
 ### Custom Seeding Strategies

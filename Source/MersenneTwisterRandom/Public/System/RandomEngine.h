@@ -27,6 +27,9 @@ class MERSENNETWISTERRANDOM_API RandomEngine
 	/** Mersenne Twister random number generator */
 	std::mt19937 Generator;
 
+	/** Number of values generated since initialization */
+	uint32 GeneratedCount;
+
 public:
 	RandomEngine();
 
@@ -155,6 +158,36 @@ public:
 	 * @return Value on the curve
 	 */
 	float RandCurveRange(const FRichCurve& Curve, float Min, float Max);
+
+	/**
+	 * Discards the next N random numbers from the generator
+	 * Useful for synchronizing multiple generators or skipping ahead
+	 * @param Count - Number of random values to discard
+	 */
+	void Discard(const uint32 Count);
+
+	/**
+	 * Discards random numbers until reaching a specific state
+	 * @param TargetState - The target state to jump to
+	 */
+	void JumpToState(const uint32 TargetState);
+
+	/**
+	 * Gets the current state of the generator
+	 * @return Current state value
+	 */
+	uint32 GetCurrentState() const;
+
+	/**
+	 * Resets the generator to its initial state with the original seed
+	 */
+	void Reset();
+
+	/**
+	 * Advances the generator by a specific number of steps
+	 * @param Steps - Number of steps to advance
+	 */
+	void Advance(const uint32 Steps);
 
 	/* STATIC METHODS */
 

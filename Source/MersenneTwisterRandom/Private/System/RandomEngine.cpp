@@ -11,7 +11,7 @@ RandomEngine::RandomEngine(): RandomEngine(StaticNewSeed())
  * @param InSeed - The seed value for reproducible random generation
  */
 RandomEngine::RandomEngine(int32 InSeed):
-	Seed(InSeed), Generator(InSeed)
+	Seed(InSeed), Generator(InSeed), GeneratedCount(0)
 {
 }
 
@@ -36,6 +36,7 @@ int32 RandomEngine::GetRootSeed() const
 int32 RandomEngine::RandInt(const int32 Min, const int32 Max)
 {
 	std::uniform_int_distribution<int32> Distribution(Min, Max); // Inclusive range
+	GeneratedCount++;
 	return Distribution(Generator);
 }
 
@@ -48,6 +49,7 @@ int32 RandomEngine::RandInt(const int32 Min, const int32 Max)
 float RandomEngine::RandFloat(const float Min, const float Max)
 {
 	std::uniform_real_distribution<float> Distribution(Min, Max); // Inclusive range
+	GeneratedCount++;
 	return Distribution(Generator);
 }
 
@@ -72,18 +74,21 @@ float RandomEngine::RandFloatBiased(const float Min, const float Max, const floa
 	if (ClampedBiasForce == 1)
 	{
 		std::uniform_real_distribution<float> Distribution(Min, Max);
+		GeneratedCount++;
 		return Distribution(Generator);
 	}
 
 	// Generate multiple random numbers and select the one closest to bias
 	std::uniform_real_distribution<float> Distribution(Min, Max);
 	float BestValue = Distribution(Generator);
+	GeneratedCount++;
 	float BestDistance = FMath::Abs(BestValue - ClampedBias);
 
 	// Generate additional samples based on bias force
 	for (int32 i = 1; i < ClampedBiasForce; ++i)
 	{
 		const float CurrentValue = Distribution(Generator);
+		GeneratedCount++;
 		const float CurrentDistance = FMath::Abs(CurrentValue - ClampedBias);
 
 		// Keep the value closer to the bias point
@@ -109,6 +114,7 @@ bool RandomEngine::RandBool(const float Probability)
 
 	// Generate random float and compare against probability threshold
 	std::uniform_real_distribution<float> Distribution(0.0f, 1.0f);
+	GeneratedCount++;
 	return Distribution(Generator) < ClampedProbability;
 }
 
@@ -234,6 +240,7 @@ float RandomEngine::StaticRandFloat(const float Min, const float Max)
 float RandomEngine::RandGaussian(const float Mean, const float StdDev)
 {
 	std::normal_distribution<float> Distribution(Mean, StdDev);
+	GeneratedCount++;
 	return Distribution(Generator);
 }
 
@@ -392,7 +399,8 @@ float RandomEngine::RandCurveValue(const FRichCurve& Curve)
 		const float MinTime = Curve.GetFirstKey().Time;
 		const float MaxTime = Curve.GetLastKey().Time;
 
-		return Curve.Eval(RandFloat(MinTime, MaxTime));
+		const float Result = Curve.Eval(RandFloat(MinTime, MaxTime));
+		return Result;
 	}
 	return 0;
 }
@@ -401,11 +409,77 @@ float RandomEngine::RandCurveRange(const FRichCurve& Curve, const float Min, con
 {
 	if (!Curve.IsEmpty())
 	{
-		return Curve.Eval(RandFloat(Min, Max));
+		const float Result = Curve.Eval(RandFloat(Min, Max));
+		return Result;
 	}
 	return 0;
 }
 
+/**
+ * Discards the next N random numbers from the generator
+ * Useful for synchronizing multiple generators or skipping ahead
+ * @param Count - Number of random values to discard
+ */
+void RandomEngine::Discard(const uint32 Count)
+{
+	// Use the discard method of the underlying Mersenne Twister generator
+	Generator.discard(Count);
+	GeneratedCount += Count;
+}
+
+/**
+ * Discards random numbers until reaching a specific state
+ * @param TargetState - The target state to jump to
+ */
+void RandomEngine::JumpToState(const uint32 TargetState)
+{
+	// If we're already at the target state, do nothing
+	if (GeneratedCount == TargetState)
+	{
+		return;
+	}
+	
+	// If target state is ahead of current state, advance
+	if (TargetState > GeneratedCount)
+	{
+		Advance(TargetState - GeneratedCount);
+	}
+	else
+	{
+		// If target state is behind current state, reset and advance
+		Reset();
+		Advance(TargetState);
+	}
+}
+
+/**
+ * Gets the current state of the generator
+ * @return Current state value
+ */
+uint32 RandomEngine::GetCurrentState() const
+{
+	return GeneratedCount;
+}
+
+/**
+ * Resets the generator to its initial state with the original seed
+ */
+void RandomEngine::Reset()
+{
+	// Reinitialize the generator with the original seed
+	Generator = std::mt19937(Seed);
+	GeneratedCount = 0;
+}
+
+/**
+ * Advances the generator by a specific number of steps
+ * @param Steps - Number of steps to advance
+ */
+void RandomEngine::Advance(const uint32 Steps)
+{
+	Generator.discard(Steps);
+	GeneratedCount += Steps;
+}
 
 /**
  * Generates a new GUID using high-quality random number generation
@@ -413,7 +487,6 @@ float RandomEngine::RandCurveRange(const FRichCurve& Curve, const float Min, con
  */
 FGuid RandomEngine::StaticNewGuid()
 {
-	// Create a temporary high-quality generator with a random seed
 	std::mt19937 LocalGenerator(StaticNewSeed());
 	std::uniform_int_distribution<uint32> Distribution(0, UINT32_MAX);
 
@@ -422,7 +495,5 @@ FGuid RandomEngine::StaticNewGuid()
 	const uint32 B = Distribution(LocalGenerator);
 	const uint32 C = Distribution(LocalGenerator);
 	const uint32 D = Distribution(LocalGenerator);
-
-	// Construct and return the GUID using the random values
 	return FGuid(A, B, C, D);
 }

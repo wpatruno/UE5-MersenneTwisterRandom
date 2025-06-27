@@ -68,6 +68,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Twister Random|Curve", meta = (DisplayName = "Random Curve Range"))
 	float RandCurveRange(const FRuntimeFloatCurve& Curve, const float Min, const float Max);
 
+	UFUNCTION(BlueprintCallable, Category = "Twister Random|State", meta = (DisplayName = "Discard"))
+	void Discard(const int32 Count);
+
+	UFUNCTION(BlueprintCallable, Category = "Twister Random|State", meta = (DisplayName = "Jump To State"))
+	void JumpToState(const int32 TargetState);
+
+	UFUNCTION(BlueprintCallable, Category = "Twister Random|State", meta = (DisplayName = "Get Current State"))
+	int32 GetCurrentState() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Twister Random|State", meta = (DisplayName = "Reset"))
+	void Reset();
+
+	UFUNCTION(BlueprintCallable, Category = "Twister Random|State", meta = (DisplayName = "Advance"))
+	void Advance(const int32 Steps);
+
 	UFUNCTION(BlueprintCallable, Category = "Twister Random|Static", meta = (DisplayName = "Generate New Seed"))
 	static int32 StaticNewSeed();
 

@@ -82,6 +82,40 @@ float UTwisterRandomSubsystem::RandCurveRange(const FRuntimeFloatCurve& Curve, c
 	return 0.0f;
 }
 
+void UTwisterRandomSubsystem::Discard(const int32 Count)
+{
+	if (Count > 0)
+	{
+		Random.Discard(static_cast<uint32>(Count));
+	}
+}
+
+void UTwisterRandomSubsystem::JumpToState(const int32 TargetState)
+{
+	if (TargetState >= 0)
+	{
+		Random.JumpToState(static_cast<uint32>(TargetState));
+	}
+}
+
+int32 UTwisterRandomSubsystem::GetCurrentState() const
+{
+	return static_cast<int32>(Random.GetCurrentState());
+}
+
+void UTwisterRandomSubsystem::Reset()
+{
+	Random.Reset();
+}
+
+void UTwisterRandomSubsystem::Advance(const int32 Steps)
+{
+	if (Steps > 0)
+	{
+		Random.Advance(static_cast<uint32>(Steps));
+	}
+}
+
 int32 UTwisterRandomSubsystem::GetRootSeed() const
 {
 	return Random.GetRootSeed();
